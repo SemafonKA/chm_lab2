@@ -14,4 +14,34 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="datatypes.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="matrix_IO.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="iofiles\initialX.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+    <Text Include="iofiles\matrixA.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+    <Text Include="iofiles\matrixParams.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+    <Text Include="iofiles\vectorB.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+    <Text Include="iofiles\solversParams.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+  </ItemGroup>
 </Project>
