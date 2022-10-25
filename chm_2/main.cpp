@@ -5,53 +5,44 @@
 #include <fstream>
 #include <vector>
 #include <iomanip>
+#include <format>
 
 using namespace std;
 
-vector<vector<real_t>> matrixA;
-vector<real_t> vectorX, vectorB;
-vector<real_t> nextVectorX;   // Вектор Х для следующих операций
-vector<int64_t> diagIndexes;
+vector<vector<real_t>> matrixA;  // Вектор диагоналей матрицы А (от верхней к нижней)
+vector<real_t> vectorX;
+vector<real_t> vectorB;
+vector<real_t> nextVectorX;      // Вектор Х для следующих операций
+vector<int64_t> diagsShift;
 
-size_t n, m, maxIterations;   // размер матрицы, число нулевых диагоналей, максимальное число итераций
-real_t maxDif, w;    // Максимальная невязка, коэф. релаксации
+size_t n;                        // Размер матрицы
+int64_t m;                       // Число нулевых диагоналей
+size_t maxIterations;            // Максимальное число итераций
+real_t maxDif;                   // Максимальная невязка
+real_t w;                        // Коэф. релаксации
 
 void ReadData()
 {
    ifstream matrixParams("./iofiles/matrixParams.txt");
-   matrixParams >> n >> m >> w;
+   matrixParams >> n >> m;
    matrixParams.close();
 
    ifstream solversParams("./iofiles/solversParams.txt");
-   solversParams >> maxIterations >> maxDif;
+   solversParams >> maxIterations >> maxDif >> w;
    solversParams.close();
 
    matrixA.resize(9);
-   diagIndexes.resize(9);
+   diagsShift = { 4 + m, 3 + m, 2 + m, 1, 0, -1, -2 - m, -3 - m, -4 - m };
    vectorB.resize(n);
    vectorX.resize(n);
    nextVectorX.resize(n);
 
-   diagIndexes[3] = -1;
-   diagIndexes[4] = 0;
-   diagIndexes[5] = 1;
-   for (size_t i = 0; i < 3; i++)
-   {
-      diagIndexes[6 + i] = 2 + m + i;
-      diagIndexes[2 - i] = -diagIndexes[6 + i];
-   }
-
    ifstream matrixAFile("./iofiles/matrixA.txt");
 
-   // Данные читаются с нижней диагонали к верхней
+   // Данные читаются с верхней диагонали к нижней
    // причём нижние диагонали должны быть прижатыми в правый край,
-   // а верхние диагонали в нижний край. Пустые элементы заполнить нулями
-   for (int i = 0; i < 4; i++)
-   {
-      matrixA[i] = GetVectorFromFile<real_t>(matrixAFile, n);
-   }
-   matrixA[4] = GetVectorFromFile<real_t>(matrixAFile, n);
-   for (int i = 5; i < 9; i++)
+   // а верхние диагонали в левый край. Пустые элементы заполнить нулями
+   for (int i = 0; i < 9; i++)
    {
       matrixA[i] = GetVectorFromFile<real_t>(matrixAFile, n);
    }
@@ -61,8 +52,10 @@ void ReadData()
 
    vectorX = GetVectorFromFile<real_t>("./iofiles/initialX.txt", n);
 
-   for (auto& elem : nextVectorX) 
+   for (auto& elem : nextVectorX)
+   {
       elem = 0;
+   }
 }
 
 real_t Norm(vector<real_t> X)
@@ -76,58 +69,143 @@ real_t Norm(vector<real_t> X)
    return norma;
 }
 
-void Iterations(vector<double>& vectorXPrev, vector<double>& vectorXNext)
+size_t Iterations(vector<real_t>& vectorXPrev, vector<real_t>& vectorXNext, real_t& resultDif)
 {
    size_t k;
    accum_t sum = 0;
    real_t norm = Norm(vectorB);     // Норма
    accum_t dif = norm;                 // Невязка, делаем её по умолчанию равной norm, чтобы зашло в цикл
-   
+
    // Итерационный цикл
-   for (k = 0; (k < maxIterations) && (dif > maxDif); k++)  
+   for (k = 1; (k <= maxIterations) && (dif > maxDif); k++)
    {
       dif = 0;
       // Пробегаемся по всем строкам матрицы А
-      for (int i = 0; i < n; i++)
+      for (size_t i = 0; i < n; i++)
       {
+         sum = 0;
          // Пробегаемся по всем столбцам матрицы А
          for (size_t j = 0; j < 9; j++)
          {
-            // Суммируем с диагональным элементом
-            if (j == 4)
+            int64_t indX = i + diagsShift[j];
+            if (indX >= 0 && indX < n)
             {
-               sum = vectorXPrev[i] * matrixA[4][i];
-            }
-            // Суммируем по нижним диагоналям
-            if (j < 4 && diagIndexes[j] + i >= 0)
-            {
-               sum += vectorXPrev[diagIndexes[j] + i] * matrixA[j][i];
-            }
-            // Суммируем по верхним диагоналям
-            if (j > 4 && diagIndexes[j] + i < n)
-            {
-               sum += vectorXPrev[diagIndexes[j] + i] * matrixA[j][i];
+               sum += vectorXPrev[indX] * matrixA[j][i];
             }
          }
          vectorXNext[i] = vectorXPrev[i] + (vectorB[i] - sum) * w / matrixA[4][i];
          dif += (vectorB[i] - sum) * (vectorB[i] - sum);       // В данный момент sum = скалярное произведение i-ой строки А на вектор Х
       }
 
-      dif = sqrt(dif) / norm;                               //относительная невязка
+      dif = sqrt(dif) / norm;                               // относительная невязка
 
-      cout << "Итерация: " << k << endl << "\t относительная невязка: " << dif << endl;
-
+      // Выводим на то же место, что и раньше (со сдвигом каретки)
+      cout << format("\rИтерация: {0:<10} относительная невязка: {1:<15.3e}", k, dif);
       swap(vectorXNext, vectorXPrev);
    }
-
-   if (k == maxIterations)
+   cout << endl;
+   if (k > maxIterations)
    {
-      cout << "Выход по числу итераций" << endl;
+      cout << "Выход по числу итераций" << endl << endl;
    }
    else
    {
-      cout << "Выход по относительной невязке" << endl;
+      cout << "Выход по относительной невязке" << endl << endl;
    }
+
+   resultDif = dif;
+   return k - 1;
+}
+
+void RelaxationTester() {
+   double w1, w2, step;
+   cout << "Тестирование на решение матрицы с разными коэф. релаксации" << endl << endl;
+   cout << "Для тестирования метода Якоби диапазон значений должен быть таким:   0 < w1 <= w2 <= 1" << endl;
+   cout << "Для тестирования метода Зейделя диапазон значений должен быть таким: 0 < w1 <= w2 < 2" << endl << endl;
+
+   cout << "Введите диапазон коэф. релаксации:" << endl;
+   cout << "  начало диапазона w1: ";
+   cin >> w1;
+   cout << "  конец диапазона w2:  ";
+   cin >> w2;
+   cout << "  шаг: ";
+   cin >> step;
+
+   if (w1 > w2 || w1 < 0 || w2 < 0 || w1 > 2 || w2 > 2)
+   {
+      cout << "Неправильно введены данные." << endl;
+      return;
+   }
+
+   int methodNum = 0;
+   cout << endl << "Выберите метод для исследования: " << endl;
+   cout << "  1) Якоби" << endl;
+   cout << "  2) Зейдель" << endl;
+
+   cout << " > ";
+   cin >> methodNum;
+
+   auto vec1 = vectorX;
+   auto vec2 = nextVectorX;
+   string methodName;
+   switch (methodNum)
+   {
+      case 1:
+         methodName = "Якоби";
+         break;
+      case 2: 
+         vec2 = vec1;
+         methodName = "Зейделя";
+         break;
+      default:
+         cout << "Неверно введено значение." << endl;
+         return;
+         break;
+   }
+
+   cout << endl << "Начало исследования для метода " << methodName << endl << endl;
+
+   size_t minIter = maxIterations;
+   real_t minIterRelax = INFINITY;
+   real_t minDif = INFINITY;
+
+   vector<real_t> bestVec;
+   for (size_t i = 0; i <= (w2 - w1) / step; i++)
+   {
+      cout << endl << "****************" << endl << endl;
+
+      w = w1 + i * step;
+      cout << "Текущее начение коэф.релаксации: " << w << endl;
+
+      size_t currIter = 0;
+      real_t dif;
+      currIter = Iterations(vec1, vec2, dif);
+      if (currIter < minIter)
+      {
+         minIter = currIter;
+         minIterRelax = w;
+         minDif = dif;
+         bestVec = vector(vec1);
+      }
+      if (currIter == minIter && dif < minDif)
+      {
+         minIterRelax = w;
+         minDif = dif;
+         bestVec = vector(vec1);
+      }
+
+      cout << "Полученный вектор решения: " << endl;
+      PrintArray(vec1.data(), vec1.size(), g_coutPrecision);
+   }
+
+   cout << endl << "****************" << endl << endl;
+
+   cout << "Исследование завершено. Получены следующие результаты: " << endl;
+   cout << "Наименьшее значение итераций метода на этом диапазоне: " << minIter << endl;
+   cout << "Значение релаксации при этом:   " << minIterRelax << endl;
+   cout << "Значение относительной невязки: " << minDif << endl;
+   cout << "Наиболее точный полученный вектор решения: " << endl;
+   PrintArray(bestVec.data(), bestVec.size(), g_coutPrecision);
 }
 
 void main()
@@ -137,21 +215,36 @@ void main()
    ReadData();
 
    int operationNum;
-   cout << "Выберите метод решения СЛАУ:" << endl << "1 - Якоби" << endl << "2 - Зейдель" << endl;
+   real_t dif;
+   cout << "Выберите метод решения СЛАУ:" << endl;
+   cout << "  1) Якоби" << endl;
+   cout << "  2) Зейдель" << endl;
+   cout << "  4) Исследование на зависимость скорости сходимости от релаксации" << endl;
    cout << "> ";
    cin >> operationNum;
    switch (operationNum)
    {
       case 1:
-         Iterations(vectorX, nextVectorX);
+         Iterations(vectorX, nextVectorX, dif);
+
+         cout << "Полученный вектор решения системы: " << endl;
+         PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, cout);
+
+         PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, ofstream(g_outputFileName));
          break;
       case 2:
-         Iterations(vectorX, vectorX);
+         Iterations(vectorX, vectorX, dif);
+
+         cout << "Полученный вектор решения системы: " << endl;
+         PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, cout);
+
+         PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, ofstream(g_outputFileName));
          break;
-   }
 
-   cout << "Полученный вектор решения системы: " << endl;
-   PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, cout);
+      case 4:
+         RelaxationTester();
+         break;
+    }
 
-   PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, ofstream(g_outputFileName));
 }
+
