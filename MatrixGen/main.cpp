@@ -3,12 +3,16 @@
 #include <fstream>
 #include <sstream>
 #include <random>
+#include <format>
 
 using namespace std;
 
 void MatrixGen(vector<vector<double>>& matrix, size_t zeroDiags) {
-   auto rand = mt19937(time(nullptr));
-   auto getRandNumber = [&]() -> double { return rand() % 100 / 10.0; };
+   auto rd = mt19937(0);      // зафиксируем рандом, чтобы в дальнейшем удобнее было поменять знаки
+   auto getRandNumber = [&]() -> double { 
+      double values[] = { 0, -1, -2, -3, -4 };
+      return values[rd() % 5];
+   };
 
    for (size_t i = 0; i < matrix.size(); i++)
    {
@@ -40,9 +44,10 @@ void MatrixGen(vector<vector<double>>& matrix, size_t zeroDiags) {
       for (size_t k = 0; k < matrix.size(); k++)
       {
          if (k == i) continue;
-         matrix[i][i] += matrix[i][k];
+         matrix[i][i] -= matrix[i][k];
       }
    }
+   matrix[0][0] += 1;
 }
 
 void GetVectorB(vector<vector<double>>& mas, vector<double>& x, vector<double>& b) {
@@ -153,5 +158,16 @@ int main(int argc, char** argv) {
    auto matrixParamsFile = ofstream("./iofiles/matrixParams.txt");
    matrixParamsFile << matrixA.size() << " " << zeroDiags << endl;
    matrixParamsFile.close();
+   
+   auto matrixAFull = ofstream("./iofiles/matrixAFull.txt");
+   for (auto& elem : matrixA)
+   {
+      for (auto num : elem)
+      {
+         matrixAFull << format("{:.15e} ", num);
+      }
+      matrixAFull << endl;
+   }
+   matrixAFull.close();
    return 0;
 }

@@ -32,5 +32,8 @@
     <Text Include="iofiles\vectorB.txt">
       <Filter>Файлы ресурсов</Filter>
     </Text>
+    <Text Include="iofiles\matrixAFull.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
   </ItemGroup>
 </Project>

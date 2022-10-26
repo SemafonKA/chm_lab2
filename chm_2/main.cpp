@@ -69,7 +69,7 @@ real_t Norm(vector<real_t> X)
    return norma;
 }
 
-size_t Iterations(vector<real_t>& vectorXPrev, vector<real_t>& vectorXNext, real_t& resultDif)
+size_t Iterations(vector<real_t>& vectorXPrev, vector<real_t>& vectorXNext, real_t& resultDif, bool debugOutput = false)
 {
    size_t k;
    accum_t sum = 0;
@@ -100,17 +100,31 @@ size_t Iterations(vector<real_t>& vectorXPrev, vector<real_t>& vectorXNext, real
       dif = sqrt(dif) / norm;                               // относительная невязка
 
       // Выводим на то же место, что и раньше (со сдвигом каретки)
-      cout << format("\rИтерация: {0:<10} относительная невязка: {1:<15.3e}", k, dif);
+      if (debugOutput)
+      {
+         cout << format("\rИтерация: {0:<10} относительная невязка: {1:<15.3e}", k, dif);
+      }
+      if (isinf(dif))
+      {
+         break;
+      }
       swap(vectorXNext, vectorXPrev);
    }
    cout << endl;
-   if (k > maxIterations)
+   if (debugOutput)
    {
-      cout << "Выход по числу итераций" << endl << endl;
-   }
-   else
-   {
-      cout << "Выход по относительной невязке" << endl << endl;
+      if (isinf(dif))
+      {
+         cout << "Выход по переполнению метода" << endl << endl;
+      }
+      else if (k > maxIterations)
+      {
+         cout << "Выход по числу итераций" << endl << endl;
+      }
+      else
+      {
+         cout << "Выход по относительной невязке" << endl << endl;
+      }
    }
 
    resultDif = dif;
@@ -170,32 +184,47 @@ void RelaxationTester() {
    real_t minDif = INFINITY;
 
    vector<real_t> bestVec;
+   auto defaultVec1 = vector<real_t>(vec1);
+   auto defaultVec2 = vector<real_t>(vec2);
+
    for (size_t i = 0; i <= (w2 - w1) / step; i++)
    {
       cout << endl << "****************" << endl << endl;
 
-      w = w1 + i * step;
+      w = w2 - i * step;
+      if (w2 - i * step < w1) w = w1;
+
       cout << "Текущее начение коэф.релаксации: " << w << endl;
 
       size_t currIter = 0;
       real_t dif;
       currIter = Iterations(vec1, vec2, dif);
-      if (currIter < minIter)
+      if (isinf(dif) || isnan(dif))
       {
-         minIter = currIter;
-         minIterRelax = w;
-         minDif = dif;
-         bestVec = vector(vec1);
+         cout << "Решение не было получено, метод разошёлся." << endl;
       }
-      if (currIter == minIter && dif < minDif)
+      else
       {
-         minIterRelax = w;
-         minDif = dif;
-         bestVec = vector(vec1);
+         if (currIter < minIter)
+         {
+            minIter = currIter;
+            minIterRelax = w;
+            minDif = dif;
+            bestVec = vector<real_t>(vec1);
+         }
+         if (currIter == minIter && dif < minDif)
+         {
+            minIterRelax = w;
+            minDif = dif;
+            bestVec = vector<real_t>(vec1);
+         }
+
+         cout << "Полученный вектор решения: " << endl;
+         PrintArray(vec1.data(), vec1.size(), g_coutPrecision);
       }
 
-      cout << "Полученный вектор решения: " << endl;
-      PrintArray(vec1.data(), vec1.size(), g_coutPrecision);
+      vec1 = vector<real_t>(defaultVec1);
+      vec2 = vector<real_t>(defaultVec2);
    }
 
    cout << endl << "****************" << endl << endl;
@@ -225,7 +254,7 @@ void main()
    switch (operationNum)
    {
       case 1:
-         Iterations(vectorX, nextVectorX, dif);
+         Iterations(vectorX, nextVectorX, dif, true);
 
          cout << "Полученный вектор решения системы: " << endl;
          PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, cout);
@@ -233,7 +262,7 @@ void main()
          PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, ofstream(g_outputFileName));
          break;
       case 2:
-         Iterations(vectorX, vectorX, dif);
+         Iterations(vectorX, vectorX, dif, true);
 
          cout << "Полученный вектор решения системы: " << endl;
          PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, cout);
