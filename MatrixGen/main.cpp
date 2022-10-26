@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
    {
       for (auto num : elem)
       {
-         matrixAFull << format("{:.15e} ", num);
+         matrixAFull << format("{:>24.15e}", num);
       }
       matrixAFull << endl;
    }

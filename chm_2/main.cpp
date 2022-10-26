@@ -218,7 +218,7 @@ void RelaxationTester() {
             minDif = dif;
             bestVec = vector<real_t>(vec1);
          }
-
+         cout << format("Число итераций: {0}\nПолученная относительная невязка: {1:<15.3e}\n", currIter, dif);
          cout << "Полученный вектор решения: " << endl;
          PrintArray(vec1.data(), vec1.size(), g_coutPrecision);
       }
@@ -276,4 +276,3 @@ void main()
     }
 
 }
-
