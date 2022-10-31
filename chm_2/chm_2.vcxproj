@@ -144,7 +144,6 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="datatypes.h" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
