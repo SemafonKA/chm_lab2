@@ -1,4 +1,3 @@
-#include "datatypes.h"
 #include "matrix_IO.h"
 
 #include <iostream>
@@ -9,17 +8,17 @@
 
 using namespace std;
 
-vector<vector<real_t>> matrixA;  // Вектор диагоналей матрицы А (от верхней к нижней)
-vector<real_t> vectorX;
-vector<real_t> vectorB;
-vector<real_t> nextVectorX;      // Вектор Х для следующих операций
+vector<vector<double>> matrixA;  // Вектор диагоналей матрицы А (от верхней к нижней)
+vector<double> vectorX;
+vector<double> vectorB;
+vector<double> nextVectorX;      // Вектор Х для следующих операций
 vector<int64_t> diagsShift;
 
 size_t n;                        // Размер матрицы
 int64_t m;                       // Число нулевых диагоналей
 size_t maxIterations;            // Максимальное число итераций
-real_t maxDif;                   // Максимальная невязка
-real_t w;                        // Коэф. релаксации
+double maxDif;                   // Максимальная невязка
+double w;                        // Коэф. релаксации
 
 void ReadData()
 {
@@ -44,13 +43,13 @@ void ReadData()
    // а верхние диагонали в левый край. Пустые элементы заполнить нулями
    for (int i = 0; i < 9; i++)
    {
-      matrixA[i] = GetVectorFromFile<real_t>(matrixAFile, n);
+      matrixA[i] = GetVectorFromFile<double>(matrixAFile, n);
    }
    matrixAFile.close();
 
-   vectorB = GetVectorFromFile<real_t>("./iofiles/vectorB.txt", n);
+   vectorB = GetVectorFromFile<double>("./iofiles/vectorB.txt", n);
 
-   vectorX = GetVectorFromFile<real_t>("./iofiles/initialX.txt", n);
+   vectorX = GetVectorFromFile<double>("./iofiles/initialX.txt", n);
 
    for (auto& elem : nextVectorX)
    {
@@ -58,9 +57,9 @@ void ReadData()
    }
 }
 
-real_t Norm(vector<real_t> X)
+double Norm(vector<double> X)
 {
-   real_t norma = 0;
+   double norma = 0;
    for (size_t i = 0; i < n; i++)
    {
       norma += X[i] * X[i];
@@ -69,12 +68,12 @@ real_t Norm(vector<real_t> X)
    return norma;
 }
 
-size_t Iterations(vector<real_t>& vectorXPrev, vector<real_t>& vectorXNext, real_t& resultDif, bool debugOutput = false)
+size_t Iterations(vector<double>& vectorXPrev, vector<double>& vectorXNext, double& resultDif, bool debugOutput = false)
 {
    size_t k;
-   accum_t sum = 0;
-   real_t norm = Norm(vectorB);     // Норма
-   accum_t dif = norm;                 // Невязка, делаем её по умолчанию равной norm, чтобы зашло в цикл
+   double sum = 0;
+   double norm = Norm(vectorB);     // Норма
+   double dif = norm;                 // Невязка, делаем её по умолчанию равной norm, чтобы зашло в цикл
 
    // Итерационный цикл
    for (k = 1; (k <= maxIterations) && (dif > maxDif); k++)
@@ -179,12 +178,12 @@ void RelaxationTester() {
    cout << endl << "Начало исследования для метода " << methodName << endl << endl;
 
    size_t minIter = maxIterations;
-   real_t minIterRelax = INFINITY;
-   real_t minDif = INFINITY;
+   double minIterRelax = INFINITY;
+   double minDif = INFINITY;
 
-   vector<real_t> bestVec;
-   auto defaultVec1 = vector<real_t>(vec1);
-   auto defaultVec2 = vector<real_t>(vec2);
+   vector<double> bestVec;
+   auto defaultVec1 = vector<double>(vec1);
+   auto defaultVec2 = vector<double>(vec2);
 
    for (size_t i = 0; i <= (w2 - w1) / step; i++)
    {
@@ -196,7 +195,7 @@ void RelaxationTester() {
       cout << "Текущее начение коэф.релаксации: " << w << endl;
 
       size_t currIter = 0;
-      real_t dif;
+      double dif;
       currIter = Iterations(vec1, vec2, dif);
       if (isinf(dif) || isnan(dif))
       {
@@ -209,21 +208,21 @@ void RelaxationTester() {
             minIter = currIter;
             minIterRelax = w;
             minDif = dif;
-            bestVec = vector<real_t>(vec1);
+            bestVec = vector<double>(vec1);
          }
          if (currIter == minIter && dif < minDif)
          {
             minIterRelax = w;
             minDif = dif;
-            bestVec = vector<real_t>(vec1);
+            bestVec = vector<double>(vec1);
          }
          cout << format("Число итераций: {0}\nПолученная относительная невязка: {1:<15.3e}\n", currIter, dif);
          cout << "Полученный вектор решения: " << endl;
-         PrintArray(vec1.data(), vec1.size(), g_coutPrecision);
+         PrintArray(vec1.data(), vec1.size(), 15);
       }
 
-      vec1 = vector<real_t>(defaultVec1);
-      vec2 = vector<real_t>(defaultVec2);
+      vec1 = vector<double>(defaultVec1);
+      vec2 = vector<double>(defaultVec2);
    }
 
    cout << endl << "****************" << endl << endl;
@@ -233,7 +232,7 @@ void RelaxationTester() {
    cout << "Значение релаксации при этом:   " << minIterRelax << endl;
    cout << "Значение относительной невязки: " << minDif << endl;
    cout << "Наиболее точный полученный вектор решения: " << endl;
-   PrintArray(bestVec.data(), bestVec.size(), g_coutPrecision);
+   PrintArray(bestVec.data(), bestVec.size(), 15);
 }
 
 void main()
@@ -243,7 +242,7 @@ void main()
    ReadData();
 
    int operationNum;
-   real_t dif;
+   double dif;
    cout << "Выберите метод решения СЛАУ:" << endl;
    cout << "  1) Якоби" << endl;
    cout << "  2) Зейдель" << endl;
@@ -256,17 +255,17 @@ void main()
          Iterations(vectorX, nextVectorX, dif, true);
 
          cout << "Полученный вектор решения системы: " << endl;
-         PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, cout);
+         PrintArray<double>(vectorX.data(), vectorX.size(), 15, cout);
 
-         PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, ofstream(g_outputFileName));
+         PrintArray<double>(vectorX.data(), vectorX.size(), 15, ofstream("./iofiles/allFloatOutput.txt"));
          break;
       case 2:
          Iterations(vectorX, vectorX, dif, true);
 
          cout << "Полученный вектор решения системы: " << endl;
-         PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, cout);
+         PrintArray<double>(vectorX.data(), vectorX.size(), 15, cout);
 
-         PrintArray<real_t>(vectorX.data(), vectorX.size(), g_coutPrecision, ofstream(g_outputFileName));
+         PrintArray<double>(vectorX.data(), vectorX.size(), 15, ofstream("./iofiles/allFloatOutput.txt"));
          break;
 
       case 4:
