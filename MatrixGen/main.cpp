@@ -10,7 +10,7 @@ using namespace std;
 void MatrixGen(vector<vector<double>>& matrix, size_t zeroDiags) {
    auto rd = mt19937(0);      // зафиксируем рандом, чтобы в дальнейшем удобнее было поменять знаки
    auto getRandNumber = [&]() -> double { 
-      double values[] = { 0, -1, -2, -3, -4 };
+      double values[] = { 0, 1, 2, 3, 4 };
       return values[rd() % 5];
    };
 
@@ -44,7 +44,7 @@ void MatrixGen(vector<vector<double>>& matrix, size_t zeroDiags) {
       for (size_t k = 0; k < matrix.size(); k++)
       {
          if (k == i) continue;
-         matrix[i][i] -= matrix[i][k];
+         matrix[i][i] += abs(matrix[i][k]);
       }
    }
    matrix[0][0] += 1;

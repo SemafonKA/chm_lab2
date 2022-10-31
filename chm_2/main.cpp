@@ -159,16 +159,15 @@ void RelaxationTester() {
    cout << " > ";
    cin >> methodNum;
 
-   auto vec1 = vectorX;
-   auto vec2 = nextVectorX;
+   auto& vec1 = vectorX;
+   auto& vec2 = methodNum == 1 ? nextVectorX : vectorX;
    string methodName;
    switch (methodNum)
    {
       case 1:
          methodName = "якоби";
          break;
-      case 2: 
-         vec2 = vec1;
+      case 2:
          methodName = "«ейдел€";
          break;
       default:
