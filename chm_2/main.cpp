@@ -1,14 +1,14 @@
-#include "matrix_IO.h"
-
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <iomanip>
 #include <format>
 
+#include "matrix_IO.h"
+
 using namespace std;
 
-vector<vector<double>> matrixA;  // Вектор диагоналей матрицы А (от верхней к нижней)
+vector<double> matrixA[9];  // Вектор диагоналей матрицы А (от верхней к нижней)
 vector<double> vectorX;
 vector<double> vectorB;
 vector<double> nextVectorX;      // Вектор Х для следующих операций
@@ -30,7 +30,6 @@ void ReadData()
    solversParams >> maxIterations >> maxDif >> w;
    solversParams.close();
 
-   matrixA.resize(9);
    diagsShift = { 4 + m, 3 + m, 2 + m, 1, 0, -1, -2 - m, -3 - m, -4 - m };
    vectorB.resize(n);
    vectorX.resize(n);
@@ -73,7 +72,7 @@ size_t Iterations(vector<double>& vectorXPrev, vector<double>& vectorXNext, doub
    size_t k;
    double sum = 0;
    double norm = Norm(vectorB);     // Норма
-   double dif = norm;                 // Невязка, делаем её по умолчанию равной norm, чтобы зашло в цикл
+   double dif = norm;                  // Невязка, делаем её по умолчанию равной norm, чтобы зашло в цикл
 
    // Итерационный цикл
    for (k = 1; (k <= maxIterations) && (dif > maxDif); k++)
@@ -83,11 +82,21 @@ size_t Iterations(vector<double>& vectorXPrev, vector<double>& vectorXNext, doub
       for (size_t i = 0; i < n; i++)
       {
          sum = 0;
+         int64_t indX;
          // Пробегаемся по всем столбцам матрицы А
-         for (size_t j = 0; j < 9; j++)
+         for (size_t j = 0; j < 4; j++)
          {
-            int64_t indX = i + diagsShift[j];
-            if (indX >= 0 && indX < n)
+            indX = i + diagsShift[j];
+            if (indX < n)
+            {
+               sum += vectorXPrev[indX] * matrixA[j][i];
+            }
+         }
+         sum += vectorXPrev[i] * matrixA[4][i];
+         for (size_t j = 5; j < 9; j++)
+         {
+            indX = i + diagsShift[j];
+            if (indX >= 0)
             {
                sum += vectorXPrev[indX] * matrixA[j][i];
             }
@@ -109,9 +118,9 @@ size_t Iterations(vector<double>& vectorXPrev, vector<double>& vectorXNext, doub
       }
       swap(vectorXNext, vectorXPrev);
    }
-   cout << endl;
    if (debugOutput)
    {
+      cout << endl;
       if (isinf(dif))
       {
          cout << "Выход по переполнению метода" << endl << endl;
@@ -226,7 +235,7 @@ void RelaxationTester() {
    }
 
    cout << endl << "****************" << endl << endl;
-
+   
    cout << "Исследование завершено. Получены следующие результаты: " << endl;
    cout << "Наименьшее значение итераций метода на этом диапазоне: " << minIter << endl;
    cout << "Значение релаксации при этом:   " << minIterRelax << endl;

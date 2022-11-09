@@ -4,41 +4,6 @@
 #include <vector>
 
 /// <summary>
-/// Функция получения числа типа size_t из файла
-/// </summary>
-/// <param name="filePath"> - путь до файла </param>
-/// <returns> число из файла </returns>
-inline size_t GetSizetFromFile(const char* filePath)
-{
-   auto fin = std::ifstream(filePath);
-   size_t matrix_size = 0;
-   fin >> matrix_size;
-   fin.close();
-   return matrix_size;
-}
-
-/// <summary>
-/// Функция считывания массива данных с файла
-/// </summary>
-/// <typeparam name="T"> - тип данных, который необходимо считать </typeparam>
-/// <param name="filePath"> - путь до файла</param>
-/// <param name="count"> - число элементов, необходимое считать </param>
-/// <returns> указатель на начало считанного массива </returns>
-template<typename T>
-T* GetArrayFromFile(const char* filePath, const size_t count)
-{
-   T* arr = new T[count];
-   auto fin = std::ifstream(filePath);
-   for (int i = 0; i < count; i++)
-   {
-      fin >> arr[i];
-   }
-   fin.close();
-
-   return arr;
-}
-
-/// <summary>
 /// Функция считывания вектора данных с файла
 /// </summary>
 /// <typeparam name="T"> - тип данных, который необходимо считать </typeparam>
