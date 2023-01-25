@@ -8,7 +8,7 @@
 using namespace std;
 
 void MatrixGen(vector<vector<double>>& matrix, size_t zeroDiags) {
-   auto rd = mt19937(0);      // зафиксируем рандом, чтобы в дальнейшем удобнее было поменять знаки
+   auto rd = mt19937(0);      // Р·Р°С„РёРєСЃРёСЂСѓРµРј СЂР°РЅРґРѕРј, С‡С‚РѕР±С‹ РІ РґР°Р»СЊРЅРµР№С€РµРј СѓРґРѕР±РЅРµРµ Р±С‹Р»Рѕ РїРѕРјРµРЅСЏС‚СЊ Р·РЅР°РєРё
    auto getRandNumber = [&]() -> double { 
       double values[] = { 0, 1, 2, 3, 4 };
       return values[rd() % 5];
@@ -61,7 +61,7 @@ void GetVectorB(vector<vector<double>>& mas, vector<double>& x, vector<double>& 
 }
 
 void MatrixOut(vector<vector<double>>& matrix, size_t zeroDiags, ostream&& out) {
-   // Выводим диагонали с верхней вниз
+   // Р’С‹РІРѕРґРёРј РґРёР°РіРѕРЅР°Р»Рё СЃ РІРµСЂС…РЅРµР№ РІРЅРёР·
    out.precision(15);
    out.setf(std::ios::scientific);
 
@@ -121,15 +121,15 @@ int main(int argc, char** argv) {
    }
    else
    {
-      cout << "Введите размер генерируемой матрицы: ";
+      cout << "Р’РІРµРґРёС‚Рµ СЂР°Р·РјРµСЂ РіРµРЅРµСЂРёСЂСѓРµРјРѕР№ РјР°С‚СЂРёС†С‹: ";
       cin >> matrixSize;
-      cout << "Введите число нулевых диагоналей: ";
+      cout << "Р’РІРµРґРёС‚Рµ С‡РёСЃР»Рѕ РЅСѓР»РµРІС‹С… РґРёР°РіРѕРЅР°Р»РµР№: ";
       cin >> zeroDiags;
    }
 
    if (zeroDiags > matrixSize - 5)
    {
-      cout << "Неверно указано число нулевых диагоналей." << endl;
+      cout << "РќРµРІРµСЂРЅРѕ СѓРєР°Р·Р°РЅРѕ С‡РёСЃР»Рѕ РЅСѓР»РµРІС‹С… РґРёР°РіРѕРЅР°Р»РµР№." << endl;
       cerr << "Fatal error: wrong number of zero diags." << endl;
       return -1;
    }

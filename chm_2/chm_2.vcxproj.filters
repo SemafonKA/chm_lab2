@@ -23,6 +23,9 @@
     <ClInclude Include="matrix_IO.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Chrono_Timer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="iofiles\initialX.txt">

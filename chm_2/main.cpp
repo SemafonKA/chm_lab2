@@ -5,20 +5,21 @@
 #include <format>
 
 #include "matrix_IO.h"
+#include "Chrono_Timer.h"
 
 using namespace std;
 
-vector<double> matrixA[9];  // Вектор диагоналей матрицы А (от верхней к нижней)
+vector<double> matrixA[9];  // Р’РµРєС‚РѕСЂ РґРёР°РіРѕРЅР°Р»РµР№ РјР°С‚СЂРёС†С‹ Рђ (РѕС‚ РІРµСЂС…РЅРµР№ Рє РЅРёР¶РЅРµР№)
 vector<double> vectorX;
 vector<double> vectorB;
-vector<double> nextVectorX;      // Вектор Х для следующих операций
+vector<double> nextVectorX;      // Р’РµРєС‚РѕСЂ РҐ РґР»СЏ СЃР»РµРґСѓСЋС‰РёС… РѕРїРµСЂР°С†РёР№
 vector<int64_t> diagsShift;
 
-size_t n;                        // Размер матрицы
-int64_t m;                       // Число нулевых диагоналей
-size_t maxIterations;            // Максимальное число итераций
-double maxDif;                   // Максимальная невязка
-double w;                        // Коэф. релаксации
+size_t n;                        // Р Р°Р·РјРµСЂ РјР°С‚СЂРёС†С‹
+int64_t m;                       // Р§РёСЃР»Рѕ РЅСѓР»РµРІС‹С… РґРёР°РіРѕРЅР°Р»РµР№
+size_t maxIterations;            // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ С‡РёСЃР»Рѕ РёС‚РµСЂР°С†РёР№
+double maxDif;                   // РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РЅРµРІСЏР·РєР°
+double w;                        // РљРѕСЌС„. СЂРµР»Р°РєСЃР°С†РёРё
 
 void ReadData()
 {
@@ -37,9 +38,9 @@ void ReadData()
 
    ifstream matrixAFile("./iofiles/matrixA.txt");
 
-   // Данные читаются с верхней диагонали к нижней
-   // причём нижние диагонали должны быть прижатыми в правый край,
-   // а верхние диагонали в левый край. Пустые элементы заполнить нулями
+   // Р”Р°РЅРЅС‹Рµ С‡РёС‚Р°СЋС‚СЃСЏ СЃ РІРµСЂС…РЅРµР№ РґРёР°РіРѕРЅР°Р»Рё Рє РЅРёР¶РЅРµР№
+   // РїСЂРёС‡С‘Рј РЅРёР¶РЅРёРµ РґРёР°РіРѕРЅР°Р»Рё РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РїСЂРёР¶Р°С‚С‹РјРё РІ РїСЂР°РІС‹Р№ РєСЂР°Р№,
+   // Р° РІРµСЂС…РЅРёРµ РґРёР°РіРѕРЅР°Р»Рё РІ Р»РµРІС‹Р№ РєСЂР°Р№. РџСѓСЃС‚С‹Рµ СЌР»РµРјРµРЅС‚С‹ Р·Р°РїРѕР»РЅРёС‚СЊ РЅСѓР»СЏРјРё
    for (int i = 0; i < 9; i++)
    {
       matrixA[i] = GetVectorFromFile<double>(matrixAFile, n);
@@ -71,19 +72,19 @@ size_t Iterations(vector<double>& vectorXPrev, vector<double>& vectorXNext, doub
 {
    size_t k;
    double sum = 0;
-   double norm = Norm(vectorB);     // Норма
-   double dif = norm;                  // Невязка, делаем её по умолчанию равной norm, чтобы зашло в цикл
+   double norm = Norm(vectorB);     // РќРѕСЂРјР°
+   double dif = norm;                  // РќРµРІСЏР·РєР°, РґРµР»Р°РµРј РµС‘ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ СЂР°РІРЅРѕР№ norm, С‡С‚РѕР±С‹ Р·Р°С€Р»Рѕ РІ С†РёРєР»
 
-   // Итерационный цикл
+   // РС‚РµСЂР°С†РёРѕРЅРЅС‹Р№ С†РёРєР»
    for (k = 1; (k <= maxIterations) && (dif > maxDif); k++)
    {
       dif = 0;
-      // Пробегаемся по всем строкам матрицы А
+      // РџСЂРѕР±РµРіР°РµРјСЃСЏ РїРѕ РІСЃРµРј СЃС‚СЂРѕРєР°Рј РјР°С‚СЂРёС†С‹ Рђ
       for (size_t i = 0; i < n; i++)
       {
          sum = 0;
          int64_t indX;
-         // Пробегаемся по всем столбцам матрицы А
+         // РџСЂРѕР±РµРіР°РµРјСЃСЏ РїРѕ РІСЃРµРј СЃС‚РѕР»Р±С†Р°Рј РјР°С‚СЂРёС†С‹ Рђ
          for (size_t j = 0; j < 4; j++)
          {
             indX = i + diagsShift[j];
@@ -102,15 +103,15 @@ size_t Iterations(vector<double>& vectorXPrev, vector<double>& vectorXNext, doub
             }
          }
          vectorXNext[i] = vectorXPrev[i] + (vectorB[i] - sum) * w / matrixA[4][i];
-         dif += (vectorB[i] - sum) * (vectorB[i] - sum);       // В данный момент sum = скалярное произведение i-ой строки А на вектор Х
+         dif += (vectorB[i] - sum) * (vectorB[i] - sum);       // Р’ РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ sum = СЃРєР°Р»СЏСЂРЅРѕРµ РїСЂРѕРёР·РІРµРґРµРЅРёРµ i-РѕР№ СЃС‚СЂРѕРєРё Рђ РЅР° РІРµРєС‚РѕСЂ РҐ
       }
 
-      dif = sqrt(dif) / norm;                               // относительная невязка
+      dif = sqrt(dif) / norm;                               // РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РЅРµРІСЏР·РєР°
 
-      // Выводим на то же место, что и раньше (со сдвигом каретки)
+      // Р’С‹РІРѕРґРёРј РЅР° С‚Рѕ Р¶Рµ РјРµСЃС‚Рѕ, С‡С‚Рѕ Рё СЂР°РЅСЊС€Рµ (СЃРѕ СЃРґРІРёРіРѕРј РєР°СЂРµС‚РєРё)
       if (debugOutput)
       {
-         cout << format("\rИтерация: {0:<10} относительная невязка: {1:<15.3e}", k, dif);
+         cout << format("\rРС‚РµСЂР°С†РёСЏ: {0:<10} РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РЅРµРІСЏР·РєР°: {1:<15.3e}", k, dif);
       }
       if (isinf(dif))
       {
@@ -123,15 +124,15 @@ size_t Iterations(vector<double>& vectorXPrev, vector<double>& vectorXNext, doub
       cout << endl;
       if (isinf(dif))
       {
-         cout << "Выход по переполнению метода" << endl << endl;
+         cout << "Р’С‹С…РѕРґ РїРѕ РїРµСЂРµРїРѕР»РЅРµРЅРёСЋ РјРµС‚РѕРґР°" << endl << endl;
       }
       else if (k > maxIterations)
       {
-         cout << "Выход по числу итераций" << endl << endl;
+         cout << "Р’С‹С…РѕРґ РїРѕ С‡РёСЃР»Сѓ РёС‚РµСЂР°С†РёР№" << endl << endl;
       }
       else
       {
-         cout << "Выход по относительной невязке" << endl << endl;
+         cout << "Р’С‹С…РѕРґ РїРѕ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕР№ РЅРµРІСЏР·РєРµ" << endl << endl;
       }
    }
 
@@ -141,28 +142,28 @@ size_t Iterations(vector<double>& vectorXPrev, vector<double>& vectorXNext, doub
 
 void RelaxationTester() {
    double w1, w2, step;
-   cout << "Тестирование на решение матрицы с разными коэф. релаксации" << endl << endl;
-   cout << "Для тестирования метода Якоби диапазон значений должен быть таким:   0 < w1 <= w2 <= 1" << endl;
-   cout << "Для тестирования метода Зейделя диапазон значений должен быть таким: 0 < w1 <= w2 < 2" << endl << endl;
+   cout << "РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ РЅР° СЂРµС€РµРЅРёРµ РјР°С‚СЂРёС†С‹ СЃ СЂР°Р·РЅС‹РјРё РєРѕСЌС„. СЂРµР»Р°РєСЃР°С†РёРё" << endl << endl;
+   cout << "Р”Р»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ РјРµС‚РѕРґР° РЇРєРѕР±Рё РґРёР°РїР°Р·РѕРЅ Р·РЅР°С‡РµРЅРёР№ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С‚Р°РєРёРј:   0 < w1 <= w2 <= 1" << endl;
+   cout << "Р”Р»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ РјРµС‚РѕРґР° Р—РµР№РґРµР»СЏ РґРёР°РїР°Р·РѕРЅ Р·РЅР°С‡РµРЅРёР№ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С‚Р°РєРёРј: 0 < w1 <= w2 < 2" << endl << endl;
 
-   cout << "Введите диапазон коэф. релаксации:" << endl;
-   cout << "  начало диапазона w1: ";
+   cout << "Р’РІРµРґРёС‚Рµ РґРёР°РїР°Р·РѕРЅ РєРѕСЌС„. СЂРµР»Р°РєСЃР°С†РёРё:" << endl;
+   cout << "  РЅР°С‡Р°Р»Рѕ РґРёР°РїР°Р·РѕРЅР° w1: ";
    cin >> w1;
-   cout << "  конец диапазона w2:  ";
+   cout << "  РєРѕРЅРµС† РґРёР°РїР°Р·РѕРЅР° w2:  ";
    cin >> w2;
-   cout << "  шаг: ";
+   cout << "  С€Р°Рі: ";
    cin >> step;
 
    if (w1 > w2 || w1 < 0 || w2 < 0 || w1 > 2 || w2 > 2)
    {
-      cout << "Неправильно введены данные." << endl;
+      cout << "РќРµРїСЂР°РІРёР»СЊРЅРѕ РІРІРµРґРµРЅС‹ РґР°РЅРЅС‹Рµ." << endl;
       return;
    }
 
    int methodNum = 0;
-   cout << endl << "Выберите метод для исследования: " << endl;
-   cout << "  1) Якоби" << endl;
-   cout << "  2) Зейдель" << endl;
+   cout << endl << "Р’С‹Р±РµСЂРёС‚Рµ РјРµС‚РѕРґ РґР»СЏ РёСЃСЃР»РµРґРѕРІР°РЅРёСЏ: " << endl;
+   cout << "  1) РЇРєРѕР±Рё" << endl;
+   cout << "  2) Р—РµР№РґРµР»СЊ" << endl;
 
    cout << " > ";
    cin >> methodNum;
@@ -173,18 +174,18 @@ void RelaxationTester() {
    switch (methodNum)
    {
       case 1:
-         methodName = "Якоби";
+         methodName = "РЇРєРѕР±Рё";
          break;
       case 2:
-         methodName = "Зейделя";
+         methodName = "Р—РµР№РґРµР»СЏ";
          break;
       default:
-         cout << "Неверно введено значение." << endl;
+         cout << "РќРµРІРµСЂРЅРѕ РІРІРµРґРµРЅРѕ Р·РЅР°С‡РµРЅРёРµ." << endl;
          return;
          break;
    }
 
-   cout << endl << "Начало исследования для метода " << methodName << endl << endl;
+   cout << endl << "РќР°С‡Р°Р»Рѕ РёСЃСЃР»РµРґРѕРІР°РЅРёСЏ РґР»СЏ РјРµС‚РѕРґР° " << methodName << endl << endl;
 
    size_t minIter = maxIterations;
    double minIterRelax = INFINITY;
@@ -201,14 +202,14 @@ void RelaxationTester() {
       w = w2 - i * step;
       if (w2 - i * step < w1) w = w1;
 
-      cout << "Текущее начение коэф.релаксации: " << w << endl;
+      cout << "РўРµРєСѓС‰РµРµ РЅР°С‡РµРЅРёРµ РєРѕСЌС„.СЂРµР»Р°РєСЃР°С†РёРё: " << w << endl;
 
       size_t currIter = 0;
       double dif;
       currIter = Iterations(vec1, vec2, dif);
       if (isinf(dif) || isnan(dif))
       {
-         cout << "Решение не было получено, метод разошёлся." << endl;
+         cout << "Р РµС€РµРЅРёРµ РЅРµ Р±С‹Р»Рѕ РїРѕР»СѓС‡РµРЅРѕ, РјРµС‚РѕРґ СЂР°Р·РѕС€С‘Р»СЃСЏ." << endl;
       }
       else
       {
@@ -225,8 +226,8 @@ void RelaxationTester() {
             minDif = dif;
             bestVec = vector<double>(vec1);
          }
-         cout << format("Число итераций: {0}\nПолученная относительная невязка: {1:<15.3e}\n", currIter, dif);
-         cout << "Полученный вектор решения: " << endl;
+         cout << format("Р§РёСЃР»Рѕ РёС‚РµСЂР°С†РёР№: {0}\nРџРѕР»СѓС‡РµРЅРЅР°СЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РЅРµРІСЏР·РєР°: {1:<15.3e}\n", currIter, dif);
+         cout << "РџРѕР»СѓС‡РµРЅРЅС‹Р№ РІРµРєС‚РѕСЂ СЂРµС€РµРЅРёСЏ: " << endl;
          PrintArray(vec1.data(), vec1.size(), 15);
       }
 
@@ -235,12 +236,12 @@ void RelaxationTester() {
    }
 
    cout << endl << "****************" << endl << endl;
-   
-   cout << "Исследование завершено. Получены следующие результаты: " << endl;
-   cout << "Наименьшее значение итераций метода на этом диапазоне: " << minIter << endl;
-   cout << "Значение релаксации при этом:   " << minIterRelax << endl;
-   cout << "Значение относительной невязки: " << minDif << endl;
-   cout << "Наиболее точный полученный вектор решения: " << endl;
+
+   cout << "РСЃСЃР»РµРґРѕРІР°РЅРёРµ Р·Р°РІРµСЂС€РµРЅРѕ. РџРѕР»СѓС‡РµРЅС‹ СЃР»РµРґСѓСЋС‰РёРµ СЂРµР·СѓР»СЊС‚Р°С‚С‹: " << endl;
+   cout << "РќР°РёРјРµРЅСЊС€РµРµ Р·РЅР°С‡РµРЅРёРµ РёС‚РµСЂР°С†РёР№ РјРµС‚РѕРґР° РЅР° СЌС‚РѕРј РґРёР°РїР°Р·РѕРЅРµ: " << minIter << endl;
+   cout << "Р—РЅР°С‡РµРЅРёРµ СЂРµР»Р°РєСЃР°С†РёРё РїСЂРё СЌС‚РѕРј:   " << minIterRelax << endl;
+   cout << "Р—РЅР°С‡РµРЅРёРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕР№ РЅРµРІСЏР·РєРё: " << minDif << endl;
+   cout << "РќР°РёР±РѕР»РµРµ С‚РѕС‡РЅС‹Р№ РїРѕР»СѓС‡РµРЅРЅС‹Р№ РІРµРєС‚РѕСЂ СЂРµС€РµРЅРёСЏ: " << endl;
    PrintArray(bestVec.data(), bestVec.size(), 15);
 }
 
@@ -252,34 +253,47 @@ void main()
 
    int operationNum;
    double dif;
-   cout << "Выберите метод решения СЛАУ:" << endl;
-   cout << "  1) Якоби" << endl;
-   cout << "  2) Зейдель" << endl;
-   cout << "  4) Исследование на зависимость скорости сходимости от релаксации" << endl;
+   cout << "Р’С‹Р±РµСЂРёС‚Рµ РјРµС‚РѕРґ СЂРµС€РµРЅРёСЏ РЎР›РђРЈ:" << endl;
+   cout << "  1) РЇРєРѕР±Рё" << endl;
+   cout << "  2) Р—РµР№РґРµР»СЊ" << endl;
+   cout << "  3) РСЃСЃР»РµРґРѕРІР°РЅРёРµ РЅР° Р·Р°РІРёСЃРёРјРѕСЃС‚СЊ СЃРєРѕСЂРѕСЃС‚Рё СЃС…РѕРґРёРјРѕСЃС‚Рё РѕС‚ СЂРµР»Р°РєСЃР°С†РёРё" << endl;
    cout << "> ";
    cin >> operationNum;
    switch (operationNum)
    {
       case 1:
-         Iterations(vectorX, nextVectorX, dif, true);
+      {
+         Timer timer;
+         size_t it = Iterations(vectorX, nextVectorX, dif, false);
+         timer.elapsed();
+         cout << "Р’СЂРµРјСЏ СЂРµС€РµРЅРёСЏ: " << timer.elapsedValue * 100 << " РјСЃ" << endl;
+         cout << "РљРѕР»РёС‡РµСЃС‚РІРѕ РёС‚РµСЂР°С†РёР№: " << it << endl;
+         cout << "РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РЅРµРІСЏР·РєР°: " << dif << endl;
 
-         cout << "Полученный вектор решения системы: " << endl;
+         cout << "РџРѕР»СѓС‡РµРЅРЅС‹Р№ РІРµРєС‚РѕСЂ СЂРµС€РµРЅРёСЏ СЃРёСЃС‚РµРјС‹: " << endl;
          PrintArray<double>(vectorX.data(), vectorX.size(), 15, cout);
 
-         PrintArray<double>(vectorX.data(), vectorX.size(), 15, ofstream("./iofiles/allFloatOutput.txt"));
+         PrintArray<double>(vectorX.data(), vectorX.size(), 15, ofstream("./iofiles/Output.txt"));
          break;
+      }
       case 2:
-         Iterations(vectorX, vectorX, dif, true);
+      {
+         Timer timer;
+         size_t it = Iterations(vectorX, vectorX, dif, false);
+         timer.elapsed();
+         cout << "Р’СЂРµРјСЏ СЂРµС€РµРЅРёСЏ: " << timer.elapsedValue * 100 << " РјСЃ" << endl;
+         cout << "РљРѕР»РёС‡РµСЃС‚РІРѕ РёС‚РµСЂР°С†РёР№: " << it << endl;
+         cout << "РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РЅРµРІСЏР·РєР°: " << dif << endl;
 
-         cout << "Полученный вектор решения системы: " << endl;
+         cout << "РџРѕР»СѓС‡РµРЅРЅС‹Р№ РІРµРєС‚РѕСЂ СЂРµС€РµРЅРёСЏ СЃРёСЃС‚РµРјС‹: " << endl;
          PrintArray<double>(vectorX.data(), vectorX.size(), 15, cout);
 
-         PrintArray<double>(vectorX.data(), vectorX.size(), 15, ofstream("./iofiles/allFloatOutput.txt"));
+         PrintArray<double>(vectorX.data(), vectorX.size(), 15, ofstream("./iofiles/Output.txt"));
          break;
-
-      case 4:
+      }
+      case 3:
          RelaxationTester();
          break;
-    }
+   }
 
 }

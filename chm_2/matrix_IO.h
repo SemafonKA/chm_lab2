@@ -4,12 +4,12 @@
 #include <vector>
 
 /// <summary>
-/// Функция считывания вектора данных с файла
+/// Р¤СѓРЅРєС†РёСЏ СЃС‡РёС‚С‹РІР°РЅРёСЏ РІРµРєС‚РѕСЂР° РґР°РЅРЅС‹С… СЃ С„Р°Р№Р»Р°
 /// </summary>
-/// <typeparam name="T"> - тип данных, который необходимо считать </typeparam>
-/// <param name="filePath"> - путь до файла</param>
-/// <param name="count"> - число элементов, необходимое считать </param>
-/// <returns> считанный вектор </returns>
+/// <typeparam name="T"> - С‚РёРї РґР°РЅРЅС‹С…, РєРѕС‚РѕСЂС‹Р№ РЅРµРѕР±С…РѕРґРёРјРѕ СЃС‡РёС‚Р°С‚СЊ </typeparam>
+/// <param name="filePath"> - РїСѓС‚СЊ РґРѕ С„Р°Р№Р»Р°</param>
+/// <param name="count"> - С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ, РЅРµРѕР±С…РѕРґРёРјРѕРµ СЃС‡РёС‚Р°С‚СЊ </param>
+/// <returns> СЃС‡РёС‚Р°РЅРЅС‹Р№ РІРµРєС‚РѕСЂ </returns>
 template<typename T>
 std::vector<T> GetVectorFromFile(const char* filePath, const size_t count)
 {
@@ -25,12 +25,12 @@ std::vector<T> GetVectorFromFile(const char* filePath, const size_t count)
 }
 
 /// <summary>
-/// Функция считывания вектора данных с файла
+/// Р¤СѓРЅРєС†РёСЏ СЃС‡РёС‚С‹РІР°РЅРёСЏ РІРµРєС‚РѕСЂР° РґР°РЅРЅС‹С… СЃ С„Р°Р№Р»Р°
 /// </summary>
-/// <typeparam name="T"> - тип данных, который необходимо считать </typeparam>
-/// <param name="file"> - предварительно открытый файл</param>
-/// <param name="count"> - число элементов, необходимое считать </param>
-/// <returns> считанный вектор </returns>
+/// <typeparam name="T"> - С‚РёРї РґР°РЅРЅС‹С…, РєРѕС‚РѕСЂС‹Р№ РЅРµРѕР±С…РѕРґРёРјРѕ СЃС‡РёС‚Р°С‚СЊ </typeparam>
+/// <param name="file"> - РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ РѕС‚РєСЂС‹С‚С‹Р№ С„Р°Р№Р»</param>
+/// <param name="count"> - С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ, РЅРµРѕР±С…РѕРґРёРјРѕРµ СЃС‡РёС‚Р°С‚СЊ </param>
+/// <returns> СЃС‡РёС‚Р°РЅРЅС‹Р№ РІРµРєС‚РѕСЂ </returns>
 template<typename T>
 std::vector<T> GetVectorFromFile(std::istream& file, const size_t count)
 {
@@ -44,12 +44,12 @@ std::vector<T> GetVectorFromFile(std::istream& file, const size_t count)
 }
 
 /// <summary>
-/// Вывод массива в произвольный поток
+/// Р’С‹РІРѕРґ РјР°СЃСЃРёРІР° РІ РїСЂРѕРёР·РІРѕР»СЊРЅС‹Р№ РїРѕС‚РѕРє
 /// </summary>
-/// <typeparam name="T"> - тип данных для вывода</typeparam>
-/// <param name="_arr"> - указатель на начало массива </param>
-/// <param name="_size"> - длина массива </param>
-/// <param name="_out">  - поток вывода (cout по умолчанию)</param>
+/// <typeparam name="T"> - С‚РёРї РґР°РЅРЅС‹С… РґР»СЏ РІС‹РІРѕРґР°</typeparam>
+/// <param name="_arr"> - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РЅР°С‡Р°Р»Рѕ РјР°СЃСЃРёРІР° </param>
+/// <param name="_size"> - РґР»РёРЅР° РјР°СЃСЃРёРІР° </param>
+/// <param name="_out">  - РїРѕС‚РѕРє РІС‹РІРѕРґР° (cout РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ)</param>
 template <typename T>
 void PrintArray(const T* _arr, const size_t _size, const int _precision = 7, std::ostream& _out = std::cout)
 {
@@ -68,12 +68,12 @@ void PrintArray(const T* _arr, const size_t _size, const int _precision = 7, std
 }
 
 /// <summary>
-/// Вывод массива в произвольный поток
+/// Р’С‹РІРѕРґ РјР°СЃСЃРёРІР° РІ РїСЂРѕРёР·РІРѕР»СЊРЅС‹Р№ РїРѕС‚РѕРє
 /// </summary>
-/// <typeparam name="T"> - тип данных для вывода</typeparam>
-/// <param name="_arr"> - указатель на начало массива </param>
-/// <param name="_size"> - длина массива </param>
-/// <param name="_out">  - поток вывода (cout по умолчанию)</param>
+/// <typeparam name="T"> - С‚РёРї РґР°РЅРЅС‹С… РґР»СЏ РІС‹РІРѕРґР°</typeparam>
+/// <param name="_arr"> - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РЅР°С‡Р°Р»Рѕ РјР°СЃСЃРёРІР° </param>
+/// <param name="_size"> - РґР»РёРЅР° РјР°СЃСЃРёРІР° </param>
+/// <param name="_out">  - РїРѕС‚РѕРє РІС‹РІРѕРґР° (cout РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ)</param>
 template <typename T>
 void PrintArray(const T* _arr, const size_t _size, const int _precision, std::ostream&& _out)
 {

@@ -147,6 +147,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Chrono_Timer.h" />
     <ClInclude Include="matrix_IO.h" />
   </ItemGroup>
   <ItemGroup>
